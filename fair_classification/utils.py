@@ -127,7 +127,14 @@ def train_model(x, y, x_control, loss_function, apply_fairness_constraints, appl
             constraints = constraints
             )
 
-    assert(w.success == True)
+    try:
+        assert(w.success == True)
+    except:
+        print "Optimization problem did not converge.. Check the solution returned by the optimizer."
+        print "Returned solution is:"
+        print w
+
+
 
     return w.x
 
@@ -224,17 +231,17 @@ def compute_cross_validation_error(x_all, y_all, x_control_all, num_folds, loss_
 
 
 
-def print_classifier_fairness_stats(acc_arr, correlation_dict_arr, cov_dict_arr):
+def print_classifier_fairness_stats(acc_arr, correlation_dict_arr, cov_dict_arr, s_attr_name):
     
     correlation_dict = get_avg_correlation_dict(correlation_dict_arr)
-    non_prot_pos = correlation_dict["s1"][1][1]
-    prot_pos = correlation_dict["s1"][0][1]
+    non_prot_pos = correlation_dict[s_attr_name][1][1]
+    prot_pos = correlation_dict[s_attr_name][0][1]
     p_rule = (prot_pos / non_prot_pos) * 100.0
     
     print "Accuracy: %0.2f" % (np.mean(acc_arr))
     print "Protected/non-protected in +ve class: %0.0f%% / %0.0f%%" % (prot_pos, non_prot_pos)
     print "P-rule achieved: %0.0f%%" % (p_rule)
-    print "Covariance between sensitive feature and decision from distance boundary : %0.3f" % (np.mean([v["s1"] for v in cov_dict_arr]))
+    print "Covariance between sensitive feature and decision from distance boundary : %0.3f" % (np.mean([v[s_attr_name] for v in cov_dict_arr]))
     print
     return p_rule
 
@@ -575,7 +582,7 @@ def plot_cov_thresh_vs_acc_pos_ratio(x_all, y_all, x_control_all, num_folds, los
     positive_per_category = defaultdict(list) # for each category (male / female), the frac of positive
 
     # first get the original values of covariance in the unconstrained classifier -- these original values are not needed for reverse constraint    
-    test_acc_arr, train_acc_arr, correlation_dict_test_arr, correlation_dict_train_arr, cov_dict_test_arr, cov_dict_train_arr = compute_cross_validation_error(x_all, y_all, x_control_all, num_folds, loss_function, 0, apply_accuracy_constraint, sep_constraint, ['s1'], [{} for i in range(0,num_folds)], 0)
+    test_acc_arr, train_acc_arr, correlation_dict_test_arr, correlation_dict_train_arr, cov_dict_test_arr, cov_dict_train_arr = compute_cross_validation_error(x_all, y_all, x_control_all, num_folds, loss_function, 0, apply_accuracy_constraint, sep_constraint, sensitive_attrs, [{} for i in range(0,num_folds)], 0)
 
     for c in cov_range:
         print "LOG: testing for multiplicative factor: %0.2f" % c

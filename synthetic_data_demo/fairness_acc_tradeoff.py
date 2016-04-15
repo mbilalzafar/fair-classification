@@ -23,7 +23,7 @@ def test_synthetic_data():
 	test_acc_arr, train_acc_arr, correlation_dict_test_arr, correlation_dict_train_arr, cov_dict_test_arr, cov_dict_train_arr = ut.compute_cross_validation_error(X, y, x_control, NUM_FOLDS, loss_function, apply_fairness_constraints, apply_accuracy_constraint, sep_constraint, ['s1'], [{} for i in range(0,NUM_FOLDS)])
 	print
 	print "== Unconstrained (original) classifier =="
-	ut.print_classifier_fairness_stats(test_acc_arr, correlation_dict_test_arr, cov_dict_test_arr)
+	ut.print_classifier_fairness_stats(test_acc_arr, correlation_dict_test_arr, cov_dict_test_arr, "s1")
 
 
 	""" Now classify such that we achieve perfect fairness """
@@ -32,7 +32,7 @@ def test_synthetic_data():
 	test_acc_arr, train_acc_arr, correlation_dict_test_arr, correlation_dict_train_arr, cov_dict_test_arr, cov_dict_train_arr = ut.compute_cross_validation_error(X, y, x_control, NUM_FOLDS, loss_function, apply_fairness_constraints, apply_accuracy_constraint, sep_constraint, ['s1'], [{'s1':cov_factor} for i in range(0,NUM_FOLDS)])		
 	print
 	print "== Constrained (fair) classifier =="
-	ut.print_classifier_fairness_stats(test_acc_arr, correlation_dict_test_arr, cov_dict_test_arr)
+	ut.print_classifier_fairness_stats(test_acc_arr, correlation_dict_test_arr, cov_dict_test_arr, "s1")
 
 	""" Now plot a tradeoff between the fairness and accuracy """
 	ut.plot_cov_thresh_vs_acc_pos_ratio(X, y, x_control, NUM_FOLDS, loss_function, apply_fairness_constraints, apply_accuracy_constraint, sep_constraint, ['s1'])
