@@ -288,6 +288,36 @@ def get_constraint_list_cov(x_train, y_train, x_control_train, sensitive_attrs, 
 
 def train_model(x, y, x_control, loss_function, apply_fairness_constraints, apply_accuracy_constraint, sep_constraint, sensitive_attrs, sensitive_attrs_to_cov_thresh, gamma=None):
 
+    """
+
+    Function that trains the model subject to various fairness constraints. If no constraints are given, then simply trains an unaltered classifier.
+    Example usage in: "synthetic_data_demo/decision_boundary_demo.py"
+
+    ----
+
+    Inputs:
+
+    X: (n) x (d+1) numpy array -- n = number of examples, d = number of features
+    y: 1-d numpy array (n entries)
+    x_control: dictionary of the type {"s": [...]}, key "s" is the sensitive feature name, and the value is a 1-d list with n elements holding the sensitive feature values
+    loss_function: the loss function that we want to optimize -- for now we have implementation of logistic loss, but other functions like hinge loss can also be added
+    apply_fairness_constraints: optimize accuracy subject to fairness constraint (0/1 values)
+    apply_accuracy_constraint: optimize fairness subject to accuracy constraint (0/1 values)
+    sep_constraint: apply the fine grained accuracy constraint
+        for details, see Section 3.3 of arxiv.org/abs/1507.05259v3
+        For examples on how to apply these constraints, see "synthetic_data_demo/decision_boundary_demo.py"
+    sensitive_attrs: ["s1", "s2", ...], list of sensitive features for which to apply fairness constraint, all of these sensitive features should have a corresponding array in x_control
+    sensitive_attrs_to_cov_thresh: the covariance threshold that the classifier should achieve (this is only needed when apply_fairness_constraints=1, not needed for the other two constraints)
+    gamma: controls the loss in accuracy we are willing to incur when using apply_accuracy_constraint and sep_constraint
+
+    ----
+
+    Outputs:
+
+    w: the learned weight vector for the classifier
+
+    """
+
 
     max_iter = 100000 # maximum number of iterations for the minimization algorithm
 
@@ -387,6 +417,13 @@ def split_into_train_test(x_all, y_all, x_control_all, train_fold_size):
 
 def compute_cross_validation_error(x_all, y_all, x_control_all, num_folds, loss_function, apply_fairness_constraints, apply_accuracy_constraint, sep_constraint, sensitive_attrs, sensitive_attrs_to_cov_thresh_arr, gamma=None):
 
+
+    """
+    Computes the cross validation error for the classifier subject to various fairness constraints
+    This function is just a wrapper of "train_model(...)", all inputs (except for num_folds) are the same. See the specifications of train_model(...) for more info.
+
+    Returns lists of train/test accuracy (with each list holding values for all folds), the fractions of various sensitive groups in positive class (for train and test sets), and covariance between sensitive feature and distance from decision boundary (again, for both train and test folds).
+    """
 
     train_folds = []
     test_folds = []
