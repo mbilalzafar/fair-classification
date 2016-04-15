@@ -172,7 +172,7 @@ We can see that decreasing the covariance threshold value gives a continuous tra
 
 ###1.7. Adult data
 
-We also provide a demo of our code on [Adult dataset](https://archive.ics.uci.edu/ml/datasets/Adult). For applying the fairness constraints on the adult dataset, execute the following commands:
+We also provide a demo of our code on [Adult dataset](http://archive.ics.uci.edu/ml/datasets/Adult). For applying the fairness constraints on the adult dataset, execute the following commands:
 
 ```shell
 $ cd adult_data_demo
