@@ -170,6 +170,15 @@ The following output is generated:
 
 We can see that decreasing the covariance threshold value gives a continuous trade-off between fairness and accuracy. Specifically, we see that the fractions of protected and non-protected examples in positive class starts to converge (resulting in a greater p-rule), however, we get an increasing drop in accuracy.
 
+###1.7. Adult data
+
+We also provide a demo of our code on [Adult dataset](https://archive.ics.uci.edu/ml/datasets/Adult). For applying the fairness constraints on the adult dataset, execute the following commands:
+
+```shell
+$ cd adult_data_demo
+$ python demo_constraints.py
+```
+
 ##2. Using the code
 
 ###2.1. Training a(n) (un)fair classifier
