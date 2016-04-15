@@ -78,13 +78,14 @@ def test_synthetic_data():
 	""" Classify the data while optimizing for accuracy """
 	print
 	print "== Unconstrained (original) classifier =="
+	# all constraint flags are set to 0 since we want to train an unconstrained (original) classifier
 	apply_fairness_constraints = 0
 	apply_accuracy_constraint = 0
 	sep_constraint = 0
 	w_uncons, p_uncons, acc_uncons = train_test_classifier()
 	
 	""" Now classify such that we optimize for accuracy while achieving perfect fairness """
-	apply_fairness_constraints = 1
+	apply_fairness_constraints = 1 # set this flag to one since we want to optimize accuracy subject to fairness constraints
 	apply_accuracy_constraint = 0
 	sep_constraint = 0
 	sensitive_attrs_to_cov_thresh = {"s1":0}
@@ -95,8 +96,8 @@ def test_synthetic_data():
 
 
 	""" Classify such that we optimize for fairness subject to a certain loss in accuracy """
-	apply_fairness_constraints = 0
-	apply_accuracy_constraint = 1
+	apply_fairness_constraints = 0 # flag for fairness constraint is set back to0 since we want to apply the accuracy constraint now
+	apply_accuracy_constraint = 1 # now, we want to optimize fairness subject to accuracy constraints
 	sep_constraint = 0
 	gamma = 0.5 # gamma controls how much loss in accuracy we are willing to incur to achieve fairness -- increase gamme to allow more loss in accuracy
 	print "== Classifier with accuracy constraint =="
@@ -108,9 +109,9 @@ def test_synthetic_data():
 	In addition, make sure that no points classified as positive by the unconstrained (original) classifier are misclassified.
 
 	"""
-	apply_fairness_constraints = 0
-	apply_accuracy_constraint = 1
-	sep_constraint = 1
+	apply_fairness_constraints = 0 # flag for fairness constraint is set back to0 since we want to apply the accuracy constraint now
+	apply_accuracy_constraint = 1 # now, we want to optimize accuracy subject to fairness constraints
+	sep_constraint = 1 # set the separate constraint flag to one, since in addition to accuracy constrains, we also want no misclassifications for certain points (details in demo README.md)
 	gamma = 2000.0
 	print "== Classifier with accuracy constraint (no +ve misclassification) =="
 	w_a_cons_fine, p_a_cons_fine, acc_a_cons_fine  = train_test_classifier()

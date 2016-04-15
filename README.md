@@ -38,6 +38,7 @@ The p-rule is essentially the ratio of (fractions of) protected and non-protecte
 Next, we will train a logistic regression classifier on the data to see the correlations between the classifier decisions and sensitive feature value:
 
 ```python
+# all constraint flags are set to 0 since we want to train an unconstrained (original) classifier
 apply_fairness_constraints = 0
 apply_accuracy_constraint = 0
 sep_constraint = 0
@@ -67,7 +68,7 @@ We can see that the classifier decisions reflect the biases contained in the ori
 Next, we will try to make these outcomes fair by still **optimizing for classifier accuracy**, but **subject it to fairness constraints**. Refer to Section 3.2 of our paper for more details.
 
 ```python
-apply_fairness_constraints = 1
+apply_fairness_constraints = 1 # set this flag to one since we want to optimize accuracy subject to fairness constraints
 apply_accuracy_constraint = 0
 sep_constraint = 0
 sensitive_attrs_to_cov_thresh = {"s1":0}
@@ -98,8 +99,8 @@ The figure shows the original decision boundary (without any constraints) and th
 Now lets try to **optimize fairness** (that does not necessarily correspond to a 100% p-rule) **subject to a deterministic loss in accuracy**. The details can be found in Section 3.3 of our paper.
 
 ```python
-apply_fairness_constraints = 0
-apply_accuracy_constraint = 1
+apply_fairness_constraints = 0 # flag for fairness constraint is set back to0 since we want to apply the accuracy constraint now
+apply_accuracy_constraint = 1 # now, we want to optimize fairness subject to accuracy constraints
 sep_constraint = 0
 gamma = 0.5
 w_a_cons, p_a_cons, acc_a_cons = train_test_classifier()    
@@ -127,9 +128,9 @@ You can experiment with more values of gamma to see how allowing more loss in ac
 Next, lets try to train a fair classifier, however, lets put an additional constraint: do not misclassify any points that were classified in positive class by the original (unconstrained) classifier! The idea here is that we only want to promote the examples from protected group to the positive class, without demoting any points from the positive class. Details of this formulation can be found in Section 3.3 of our paper. The code works as follows:
 
 ```python
-apply_fairness_constraints = 0
-apply_accuracy_constraint = 1
-sep_constraint = 1
+apply_fairness_constraints = 0 # flag for fairness constraint is set back to0 since we want to apply the accuracy constraint now
+apply_accuracy_constraint = 1 # now, we want to optimize accuracy subject to fairness constraints
+sep_constraint = 1 # set the separate constraint flag to one, since in addition to accuracy constrains, we also want no misclassifications for certain points (details in demo README.md)
 gamma = 2000.0
 w_a_cons_fine, p_a_cons_fine, acc_a_cons_fine  = train_test_classifier()
 ```
@@ -171,6 +172,8 @@ We can see that decreasing the covariance threshold value gives a continuous tra
 
 ##2. Using the code
 
+###2.1. Training a(n) (un)fair classifier
+
 For training a fair classifier, set the values for constraints that you want to apply, and call the following function:
 
 ```python
@@ -185,7 +188,16 @@ w = ut.train_model(x_train, y_train, x_control_train, loss_function, apply_fairn
 
 The function resides in file "fair_classification/utils.py". **Documentation about the type/format of the variables can be found at the beginning of the function**.
 
-Setting all the constraint values to 0 will train an unconstrained (original) logistic regression classifier. You can choose the constraint values selectively depending on which fairness formulation you want to use (examples for each case provided in the demo above). The function will return the weight vector learned by the classifier. You can use numpy.dot(w,x) to get the class probability of any data point. Using numpy.sign(numpy.dot(w,x)) will give the class label.
+Setting all the constraint values to 0 will train an unconstrained (original) logistic regression classifier. You can choose the constraint values selectively depending on which fairness formulation you want to use (**examples for each case provided in the demo above**).
+
+###2.2. Making predictions
+
+The function will return the weight vector learned by the classifier. Given an _(n)_ x _(d+1)_ array _X_ consisting of data _n_ points (and _d_ features -- first column in the weight array is for the intercept, and should be set to 1 for all data points), you can make the classifier predictions using the weight vector as follows:
+
+```python
+distance_boundary = numpy.dot(w, X) # will give the distance from the decision boundary
+predicted_labels = np.sign(class_probabilities) # sign of the class probability is the class label
+```
 
 For using k-fold cross validation, call the function "ut.compute_cross_validation_error(...)". This function will automatically split the data into k (specified by user) train/test folds and return the accuracy and fairness numbers.
 
