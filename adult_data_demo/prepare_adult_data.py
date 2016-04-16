@@ -36,7 +36,7 @@ def check_data_file(fname):
 def load_adult_data(load_data_size=None):
 
     """
-        if load_data_size is None, then we load and return the whole data
+        if load_data_size is set to None (or if no argument is provided), then we load and return the whole data
         if it is a number, say 10000, then we will return randomly selected 10K examples
     """
 
