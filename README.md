@@ -1,12 +1,12 @@
 #Learning Fair Classifiers
 
-This repository provides a logistic regression implementation in python for our fair classification mechanism introduced in (Zafar et al., 2016). Please cite the paper when using the code.
+This repository provides a logistic regression implementation in python for our fair classification mechanism introduced in [(Zafar et al., 2016)](http://arxiv.org/abs/1507.05259v3). Please cite the paper when using the code.
 
 **Dependencies:** numpy, matplotlib, scipy
 
 ##1. Fair classification demo
 
-Fair classification corresponds to a scenerio where we are learning classifiers from a dataset that is biased towards/against a specific demographic group, yet the classifier results are fair. For more details, have a look at Section 2 of our [paper](http://arxiv.org/pdf/1507.05259v3.pdf).
+Fair classification corresponds to a scenario where we are learning classifiers from a dataset that is biased towards/against a specific demographic group, yet the classifier predictions are fair and do not show the biases contained in the data. For more details, have a look at Section 2 of our [paper](http://arxiv.org/pdf/1507.05259v3.pdf).
 
 ###1.1. Generating a biased dataset
 Lets start off by generating a sample dataset where class labels are biased towards a certain group.
@@ -20,7 +20,7 @@ The code will generate a dataset with a multivariate normal distribution. The da
 
 <img src="synthetic_data_demo/img/data.png" width="500px" style="float: right;">
 
-Green color denotes the positive class while red denotes negative. Circles represent the protected group while crosses represent the non-protected group. It can be seen that class labels (green and red) are highly correlated with the sensitive feature value (protected and non-protected), that is, most of the green points are in the non-protected class while most of red points are in protected class. **Close the figure** for the code to continue. Next, the code will also output the following details about the dataset:
+Green color denotes the positive class while red denotes negative. Circles represent the non-protected group while crosses represent the protected group. It can be seen that class labels (green and red) are highly correlated with the sensitive feature value (protected and non-protected), that is, most of the green (positive class) points are in the non-protected class while most of red (negative class) points are in the protected class. **Close the figure** for the code to continue. Next, the code will output the following details about the dataset:
 
 ```
 Total data points: 2000
@@ -61,11 +61,11 @@ P-rule achieved: 48%
 Covariance between sensitive feature and decision from distance boundary : 0.809
 ```
 
-We can see that the classifier decisions reflect the biases contained in the original data, and the p-rule is 48%, showing the unfairness of classifier outcomes. The reason why the classifier shows similar biases as ones contained in the data is that the classifier model tries to minimize the loss (or maximize accuracy) on the training data by learning the patterns in the data as much as possible. One of the patterns was the unfairness w.r.t. the sensitive feature, and the classifier ended up copying that as well.
+We can see that the classifier decisions reflect the biases contained in the original data, and the p-rule is 48%, showing the unfairness of classifier outcomes. The reason why the classifier shows similar biases as ones contained in the data is that the classifier model tries to minimize the loss (or maximize the accuracy) on the training data by learning the patterns in the data as best as possible. One of the patterns was the unfairness w.r.t. the sensitive feature, and the classifier ended up learning that as well.
 
 ###1.3. Optimizing classifier accuracy subject to fairness constraints
 
-Next, we will try to make these outcomes fair by still **optimizing for classifier accuracy**, but **subject it to fairness constraints**. Refer to Section 3.2 of our paper for more details.
+Next, we will try to make these outcomes fair by still **optimizing for classifier accuracy**, but **subject it to fairness constraints**. Refer to Section 3.2 of our [paper](http://arxiv.org/pdf/1507.05259v3.pdf) for more details.
 
 ```python
 apply_fairness_constraints = 1 # set this flag to one since we want to optimize accuracy subject to fairness constraints
@@ -96,7 +96,7 @@ The figure shows the original decision boundary (without any constraints) and th
 
 ###1.4. Optimizing fairness subject to accuracy constraints
 
-Now lets try to **optimize fairness** (that does not necessarily correspond to a 100% p-rule) **subject to a deterministic loss in accuracy**. The details can be found in Section 3.3 of our paper.
+Now lets try to **optimize fairness** (that does not necessarily correspond to a 100% p-rule) **subject to a deterministic loss in accuracy**. The details can be found in Section 3.3 of our [paper](http://arxiv.org/pdf/1507.05259v3.pdf).
 
 ```python
 apply_fairness_constraints = 0 # flag for fairness constraint is set back to0 since we want to apply the accuracy constraint now
@@ -125,7 +125,7 @@ You can experiment with more values of gamma to see how allowing more loss in ac
 
 ###1.5. Constraints on misclassying positive examples
 
-Next, lets try to train a fair classifier, however, lets put an additional constraint: do not misclassify any points that were classified in positive class by the original (unconstrained) classifier! The idea here is that we only want to promote the examples from protected group to the positive class, without demoting any points from the positive class. Details of this formulation can be found in Section 3.3 of our paper. The code works as follows:
+Next, lets try to train a fair classifier, however, lets put an additional constraint: do not misclassify any non-protected points that were classified in positive class by the original (unconstrained) classifier! The idea here is that we only want to promote the examples from protected group to the positive class, without demoting any non-protected points from the positive class (this might be a business necessity in many scenarios). Details of this formulation can be found in Section 3.3 of our [paper](http://arxiv.org/pdf/1507.05259v3.pdf). The code works as follows:
 
 ```python
 apply_fairness_constraints = 0 # flag for fairness constraint is set back to0 since we want to apply the accuracy constraint now
@@ -148,7 +148,7 @@ Covariance between sensitive feature and decision from distance boundary : 0.075
 
 <img src="synthetic_data_demo/img/a_cons_fine.png" width="500px" style="float: right;">
 
-Notice the movement of decision boundary: we are only moving points to the positive class to achieve fairness (and not moving anything that was classified as positive by the original classifier to the negative class).
+Notice the movement of decision boundary: we are only moving points to the positive class to achieve fairness (and not moving any non-protected point that was classified as positive by the original classifier to the negative class).
 
 ###1.6. Understanding trade-offs between fairness and accuracy
 Remember, while optimizing for accuracy subject to fairness constraints, we forced the classifier to achieve perfect fairness by setting the covariance threshold to 0. This resulted in a perfectly fair classifier but we had to incur a rather big loss in accuracy (0.71 from 0.85). Lets see if we try a range of fairness values (not necessarily 100% p-rule), what kind of accuracy we will be achieving. We will do that by trying a range of values of covariance threshold (not only 0!) for this purpose. Execute the following command:

@@ -91,7 +91,7 @@ def train_model(x, y, x_control, loss_function, apply_fairness_constraints, appl
             old_loss = sum(initial_loss_arr)
             return ((1.0 + gamma) * old_loss) - new_loss
 
-        def constraint_protected_people(w,x,y): #
+        def constraint_protected_people(w,x,y): # dont confuse the protected here with the sensitive feature protected/non-protected values -- protected here means that these points should not be misclassified to negative class
             return np.dot(w, x.T) # if this is positive, the constraint is satisfied
         def constraint_unprotected_people(w,ind,old_loss,x,y):
             
@@ -105,7 +105,7 @@ def train_model(x, y, x_control, loss_function, apply_fairness_constraints, appl
         if sep_constraint == True: # separate gemma for different people
             for i in range(0, len(predicted_labels)):
                 if predicted_labels[i] == 1.0 and x_control[sensitive_attrs[0]][i] == 1.0: # for now we are assuming just one sensitive attr for reverse constraint, later, extend the code to take into account multiple sensitive attrs
-                    c = ({'type': 'ineq', 'fun': constraint_protected_people, 'args':(x[i], y[i])})                
+                    c = ({'type': 'ineq', 'fun': constraint_protected_people, 'args':(x[i], y[i])}) # this constraint makes sure that these people stay in the positive class even in the modified classifier             
                     constraints.append(c)
                 else:
                     c = ({'type': 'ineq', 'fun': constraint_unprotected_people, 'args':(i, unconstrained_loss_arr[i], x[i], y[i])})                
