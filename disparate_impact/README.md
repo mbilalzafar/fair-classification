@@ -1,4 +1,4 @@
-# Classification free of disparate impact
+# Classification without disparate impact
 
 ## 1. Fair classification demo
 
