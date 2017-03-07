@@ -168,7 +168,32 @@ We can see that decreasing the covariance threshold value gives a continuous tra
 
 ### 1.8. ProPublica COMPAS dataset
 
-Will be added shortly.
+We also provide a demo of our scheme with <a href="https://github.com/propublica/compas-analysis" target="_blank">ProPublica COMPAS dataset</a>. For seeing the effect of fairness constraints on this dataset, execute the following commands:
+
+```shell
+$ cd propublica_compas_data_demo/
+$ python demo_constraints.py
+```
+
+The code will show the stats for an unconstrained (potentially unfair) classifier, and a classifier constrained to have equal false positive rates for two demographic groups, African-Americans (encoded as 0) and Caucasians (encoded as 1). 
+
+```shell
+== Unconstrained (original) classifier ==
+
+Accuracy: 0.678
+||  s  || FPR. || FNR. ||
+||  0  || 0.36 || 0.27 ||
+||  1  || 0.18 || 0.59 ||
+-----------------------------------------------------------------------------------
+== Constraints on FPR ==
+
+Accuracy: 0.665
+||  s  || FPR. || FNR. ||
+||  0  || 0.27 || 0.37 ||
+||  1  || 0.29 || 0.45 ||
+```
+
+You will notice that in this dataset, controlling for unfairness w.r.t. false positive rates also helps control unfairness on false negative rates (rather than making it worse, or not affecting it at all). For more discussion, please see Section 5 of our <a href="http://arxiv.org/abs/1610.08452" target="_blank">paper</a>.
 
 ## 2. Using the code
 
