@@ -104,7 +104,7 @@ def generate_synthetic_data(data_type, plot_data=False):
     """ Plot the data """
     if plot_data:
         plt.figure()
-        num_to_draw = 300 # we will only draw a small number of points to avoid clutter
+        num_to_draw = 200 # we will only draw a small number of points to avoid clutter
         x_draw = X[:num_to_draw]
         y_draw = y[:num_to_draw]
         x_control_draw = x_control[:num_to_draw]

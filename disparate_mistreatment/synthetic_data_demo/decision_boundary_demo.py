@@ -34,40 +34,6 @@ def test_synthetic_data():
 		return w, test_score, s_attr_to_fp_fn_test
 		
 
-	def plot_boundaries(w1, w2, p1, p2, acc1, acc2, fname):
-
-		num_to_draw = 200 # we will only draw a small number of points to avoid clutter
-		x_draw = X[:num_to_draw]
-		y_draw = y[:num_to_draw]
-		x_control_draw = x_control["s1"][:num_to_draw]
-
-		X_s_0 = x_draw[x_control_draw == 0.0]
-		X_s_1 = x_draw[x_control_draw == 1.0]
-		y_s_0 = y_draw[x_control_draw == 0.0]
-		y_s_1 = y_draw[x_control_draw == 1.0]
-		plt.scatter(X_s_0[y_s_0==1.0][:, 1], X_s_0[y_s_0==1.0][:, 2], color='green', marker='x', s=30, linewidth=1.5)
-		plt.scatter(X_s_0[y_s_0==-1.0][:, 1], X_s_0[y_s_0==-1.0][:, 2], color='red', marker='x', s=30, linewidth=1.5)
-		plt.scatter(X_s_1[y_s_1==1.0][:, 1], X_s_1[y_s_1==1.0][:, 2], color='green', marker='o', facecolors='none', s=30)
-		plt.scatter(X_s_1[y_s_1==-1.0][:, 1], X_s_1[y_s_1==-1.0][:, 2], color='red', marker='o', facecolors='none', s=30)
-
-
-		x1,x2 = max(x_draw[:,1]), min(x_draw[:,1])
-		y1,y2 = ut.get_line_coordinates(w1, x1, x2)
-		plt.plot([x1,x2], [y1,y2], 'c-', linewidth=3, label = "Acc=%0.2f; p%% rule=%0.0f%% - Original"%(acc1, p1))
-		y1,y2 = ut.get_line_coordinates(w2, x1, x2)
-		plt.plot([x1,x2], [y1,y2], 'b--', linewidth=3, label = "Acc=%0.2f; p%% rule=%0.0f%% - Constrained"%(acc2, p2))
-
-
-
-		plt.tick_params(axis='x', which='both', bottom='off', top='off', labelbottom='off') # dont need the ticks to see the data distribution
-		plt.tick_params(axis='y', which='both', left='off', right='off', labelleft='off')
-		plt.legend(loc=2, fontsize=15)
-		plt.xlim((-15,10))
-		plt.ylim((-10,15))
-		plt.savefig(fname)
-		plt.show()
-
-
 	""" Classify the data while optimizing for accuracy """
 	print
 	print "== Unconstrained (original) classifier =="
@@ -91,14 +57,14 @@ def test_synthetic_data():
 					"sensitive_attrs_to_cov_thresh": sensitive_attrs_to_cov_thresh}
 
 	w_cons, acc_cons, s_attr_to_fp_fn_test_cons  = train_test_classifier()
-	psb.plot_boundaries(x_test, y_test, x_control_test, [w_uncons, w_cons], [acc_uncons, acc_cons], [s_attr_to_fp_fn_test_uncons["s1"], s_attr_to_fp_fn_test_cons["s1"]], "img/syn_cons_dtype_%d_cons_type_%d.png"%(data_type, cons_type) )
+	psb.plot_boundaries(X, y, x_control, [w_uncons, w_cons], [acc_uncons, acc_cons], [s_attr_to_fp_fn_test_uncons["s1"], s_attr_to_fp_fn_test_cons["s1"]], "img/syn_cons_dtype_%d_cons_type_%d.png"%(data_type, cons_type) )
 	print "\n-----------------------------------------------------------------------------------\n"
 
 	print "\n\n=== Constraints on FNR ==="
 	cons_type = 2
 	cons_params["cons_type"] = cons_type # FNR constraint -- just change the cons_type, the rest of parameters should stay the same
 	w_cons, acc_cons, s_attr_to_fp_fn_test_cons  = train_test_classifier()
-	psb.plot_boundaries(x_test, y_test, x_control_test, [w_uncons, w_cons], [acc_uncons, acc_cons], [s_attr_to_fp_fn_test_uncons["s1"], s_attr_to_fp_fn_test_cons["s1"]], "img/syn_cons_dtype_%d_cons_type_%d.png"%(data_type, cons_type) )
+	psb.plot_boundaries(X, y, x_control, [w_uncons, w_cons], [acc_uncons, acc_cons], [s_attr_to_fp_fn_test_uncons["s1"], s_attr_to_fp_fn_test_cons["s1"]], "img/syn_cons_dtype_%d_cons_type_%d.png"%(data_type, cons_type) )
 	print "\n-----------------------------------------------------------------------------------\n"
 
 
@@ -107,7 +73,7 @@ def test_synthetic_data():
 	cons_type = 4
 	cons_params["cons_type"] = cons_type # both FPR and FNR constraints
 	w_cons, acc_cons, s_attr_to_fp_fn_test_cons  = train_test_classifier()
-	psb.plot_boundaries(x_test, y_test, x_control_test, [w_uncons, w_cons], [acc_uncons, acc_cons], [s_attr_to_fp_fn_test_uncons["s1"], s_attr_to_fp_fn_test_cons["s1"]], "img/syn_cons_dtype_%d_cons_type_%d.png"%(data_type, cons_type) )
+	psb.plot_boundaries(X, y, x_control, [w_uncons, w_cons], [acc_uncons, acc_cons], [s_attr_to_fp_fn_test_uncons["s1"], s_attr_to_fp_fn_test_cons["s1"]], "img/syn_cons_dtype_%d_cons_type_%d.png"%(data_type, cons_type) )
 	print "\n-----------------------------------------------------------------------------------\n"
 
 
