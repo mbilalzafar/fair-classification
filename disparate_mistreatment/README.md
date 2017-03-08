@@ -216,7 +216,7 @@ The function resides in file "fair_classification/funcs_disp_mist.py". **Documen
 
 Passing ```cons_params = None``` will train an unconstrained (original) logistic regression classifier. For details on how to apply fairness constraints w.r.t. all misclassifications, false positive rates, false negative rates, or both, see the function documentation and the demo files above.
 
-Finally, since the constrained classifier needs access to the misclassification covariance of the unconstrained (original) classifier, this information has to be provided as a part of the ```cons_params``` variable. This covariance is computed by the ```get_sensitive_attr_constraint_fpr_fnr_cov(...)``` function in "fair_classification/funcs_disp_mist.py".  Detailed example of how to compute the covariance and how to construct the ```cons_params``` variable can be found in "fair-classification/disparate_mistreatment/synthetic_data_demo/decision_boundary_demo.py".
+Finally, since the constrained classifier needs access to the misclassification covariance of the unconstrained (original) classifier, this information has to be provided as a part of the ```cons_params``` variable. This covariance is computed by the ```get_sensitive_attr_constraint_fpr_fnr_cov(...)``` function in "fair_classification/funcs_disp_mist.py".  Detailed example of how to compute the covariance and how to construct the ```cons_params``` variable can be found in "disparate_mistreatment/synthetic_data_demo/decision_boundary_demo.py".
 
 ### 2.2. Making predictions
 
