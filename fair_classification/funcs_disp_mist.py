@@ -36,7 +36,11 @@ def train_model_disp_mist(x, y, x_control, loss_function, EPS, cons_params=None)
 
     cons_params: is None when we do not want to apply any constraints
     otherwise: cons_params is a dict with keys as follows:
-        - cons_type: 0 for all misclassifications, 1 for FPR, 2 for FNR, 4 for both FPR and FNR
+        - cons_type: 
+            - 0 for all misclassifications 
+            - 1 for FPR
+            - 2 for FNR
+            - 4 for both FPR and FNR
         - tau: DCCP parameter, controls how much weight to put on the constraints, if the constraints are not satisfied, then increase tau -- default is DCCP val 0.005
         - mu: DCCP parameter, controls the multiplicative factor by which the tau increases in each DCCP iteration -- default is the DCCP val 1.2
         - take_initial_sol: whether the starting point for DCCP should be the solution for the original (unconstrained) classifier -- default value is True

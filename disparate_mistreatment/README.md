@@ -39,7 +39,7 @@ _Close the figure to continue the code._
 
 ### 1.2. Training an unconstrained classifier
 
-Next, we will train a logistic regression classifier on the data:
+Next, the code will train a logistic regression classifier on the data:
 
 ```python
 w_uncons, acc_uncons, s_attr_to_fp_fn_test_uncons = train_test_classifier()
@@ -59,7 +59,9 @@ Accuracy: 0.821
 
 We see that the classifier has very different misclassification rates for the two groups. Specifically, both false positive as well as false negative rates for group-0 are higher than those for group-1. That is, a classifier optimizing for misclassification rates (or, accuracy) on the whole dataset leads to different misclassification rates for the two demographic groups.
 This may be unfair in certain scenarios. For example this could be a classifier that is making decisions to grant loans to the applicants, and having different misclassification rates for the two groups can be considered unfair.
-Let us try to fix this unfairness. We will first try to fix disparate false positive rates for both groups:
+Let us try to fix this unfairness. 
+
+We will first try to fix disparate false positive rates for both groups:
 
 ### 1.3. Removing unfairness w.r.t. false positive rate
 
@@ -94,7 +96,7 @@ So, the classifier sacrificed around 5% of (overall) accuracy to remove disparit
 
 <img src="synthetic_data_demo/img/syn_cons_dtype_1_cons_type_1.png" width="500px" style="float: right;">
 
-The figure shows the original decision boundary (without any constraints) and the shifted decision boundary that was learnt by the fair classifier. Notice how the boundary shifts to push some previously misclassified points from group-0 into the negative class (_decreasing_ its false positive rate) and some correctly classified points from group-1 into the positive class (_increasing_ its false positive rate). Also, the false negative rates for both groups, while different from that of the original classifier, still show some disparity.
+The figure shows the original decision boundary (without any constraints, solid line) and the fair decision boundary (dotted line) resulting from the constraints on false positive rates. Notice how the boundary shifts to push some previously misclassified points from group-0 into the negative class (_decreasing_ its false positive rate) and some correctly classified points from group-1 into the positive class (_increasing_ its false positive rate). Also, the false negative rates for both groups, while different from that of the original classifier, still show some disparity.
 
 
 ### 1.4. Removing unfairness w.r.t. false negative rate
@@ -150,10 +152,10 @@ We see that: (i) disparity on both false positive as well as false negative rate
 
 ### 1.6. However...
 
-These shifts in boundary can be very different in different settings. For example, in certain cases (depending on the underlying data distribution), fixing unfairness w.r.t. false positive rates can also fix disparity on false negative rates. Similarly, the precise amount of accuracy that we have to trade-off to achieve fairness will also vary depending on the specific dataset. We experiment with some of these scenarios in Section 5 of our <a href="http://arxiv.org/abs/1610.08452" target="_blank">paper</a>.
+These shifts in boundary can be very different in different settings. For example, in certain cases (depending on the underlying data distribution), fixing unfairness w.r.t. false positive rates can also fix disparity on false negative rates (as we will see a little later). Similarly, the precise amount of accuracy that we have to trade-off to achieve fairness will also vary depending on the specific dataset. We experiment with some of these scenarios in Section 5 of our <a href="http://arxiv.org/abs/1610.08452" target="_blank">paper</a>.
 
 Also, one might wish for overall misclassification (irrespective of whether these misclassifications are false positives or false negative) to be the same. 
-Such scenarios can be simulated by setting ```cons_type=0``` in the experiments.
+Such scenarios can be simulated by passing ```cons_type=0``` to ```cons_params``` variable.
 
 ### 1.7. Understanding trade-offs between fairness and accuracy
 Remember, until now, we forced the classifier to achieve perfect fairness by setting the covariance threshold to 0. In certain scenarios, a perfectly fair classifier might come at a large cost in terms of accuracy. Lets see if we try a range of fairness values (not necessarily equal false positive and/or false negative rates), what kind of accuracy we will be achieving. We will do that by trying a range of values of covariance threshold (not only 0!) for this purpose. Execute the following command:
@@ -162,7 +164,7 @@ Remember, until now, we forced the classifier to achieve perfect fairness by set
 $ python fairness_acc_tradeoff.py
 ```
 
-The code will generate the synthetic data as before, apply the constraints to remove disparity on false positive rate and generate the following output:
+The code will generate the synthetic data as before, apply the constraints to remove disparity in false positive rates and generate the following output:
 
 <img src="synthetic_data_demo/img/fairness_acc_tradeoff_cons_type_1.png" width="500px" style="float: right;">
 
@@ -213,6 +215,9 @@ w = fdm.train_model_disp_mist(x_train, y_train, x_control_train, loss_function, 
 The function resides in file "fair_classification/funcs_disp_mist.py". **Documentation about the type/format of the variables can be found at the beginning of the function**.
 
 Passing ```cons_params = None``` will train an unconstrained (original) logistic regression classifier. For details on how to apply fairness constraints w.r.t. all misclassifications, false positive rates, false negative rates, or both, see the function documentation and the demo files above.
+
+Finally, since the constrained classifier needs access to the misclassification covariance of the unconstrained (original) classifier, this information has to be provided as a part of the ```cons_params``` variable. This covariance is computed by the ```get_sensitive_attr_constraint_fpr_fnr_cov(...)``` function in "fair_classification/funcs_disp_mist.py".  Detailed example of how to compute the covariance and how to construct the ```cons_params``` variable can be found in "fair-classification/disparate_mistreatment/synthetic_data_demo/decision_boundary_demo.py".
+
 ### 2.2. Making predictions
 
 The function will return the weight vector learned by the classifier. Given an _(n)_ x _(d+1)_ array _X_ consisting of data _n_ points (and _d_ features -- first column in the weight array is for the intercept, and should be set to 1 for all data points), you can make the classifier predictions using the weight vector as follows:
