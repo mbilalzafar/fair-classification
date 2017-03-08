@@ -16,7 +16,7 @@
 
 ## 1. Fair classification demo
 
-Imagine we are training classifiers on a given dataset and the learned classifier results in different misclassification rates for different demographic groups. Fair classification here corresponds to removing such disparities in misclassification rates in classification outcomes.
+Imagine we are training classifiers on a given dataset and the learned classifier results in different misclassification rates for different demographic groups. Fair classification here corresponds to removing such disparities in misclassification rates from classification outcomes.
 
 For more details, have a look at our <a href="http://arxiv.org/abs/1610.08452" target="_blank">paper</a>.
 
@@ -34,6 +34,8 @@ The code will generate a dataset with a multivariate normal distribution. The da
 <img src="synthetic_data_demo/img/data.png" width="500px" style="float: right;">
 
 Green color denotes the positive class while red denotes the negative class. The sensitive feature here takes two values: 0 and 1. So the dataset tries to simulate two different demographic groups. You can notice that the positive and negative classes for group-0 (crosses) have a different distribution as compared to the positive and negative classes for group-1 (circles). As a result, a classifier trained on this data might have different accuracy (or misclassification rates) for different groups. Let us confirm if this actually happens.
+
+_Close the figure to continue the code._
 
 ### 1.2. Training an unconstrained classifier
 
