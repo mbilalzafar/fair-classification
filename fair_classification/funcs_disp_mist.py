@@ -101,7 +101,7 @@ def train_model_disp_mist(x, y, x_control, loss_function, EPS, cons_params=None)
         tau, mu = 0.005, 1.2 # default dccp parameters, need to be varied per dataset
         if cons_params is not None: # in case we passed these parameters as a part of dccp constraints
             if cons_params.get("tau") is not None: tau = cons_params["tau"]
-            if cons_params.get("mu") is not None: tau = cons_params["mu"]
+            if cons_params.get("mu") is not None: mu = cons_params["mu"]
 
         prob.solve(method='dccp', tau=tau, mu=mu, tau_max=1e10,
             solver=ECOS, verbose=False, 
