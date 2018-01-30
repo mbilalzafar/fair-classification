@@ -120,7 +120,7 @@ def train_model_disp_mist(x, y, x_control, loss_function, EPS, cons_params=None)
 
     # check that the fairness constraint is satisfied
     for f_c in constraints:
-        assert(f_c.value == True)
+        assert(f_c.value == True) # can comment this out if the solver fails too often, but make sure that the constraints are satisfied empirically. alternatively, consider increasing tau parameter
         pass
         
 
@@ -215,16 +215,19 @@ def get_constraint_list_cov(x_train, y_train, x_control_train, sensitive_attrs_t
                 
         if index_dict is None: # binary attribute, in this case, the attr_arr_transformed is the same as the attr_arr
 
-            s_val_to_total = {}
-            s_val_to_avg = {}
-            cons_sum_dict = {0:{}, 1:{}, 2:{}} # sum of entities (females and males) in constraints are stored here
+            s_val_to_total = {ct:{} for ct in [0,1,2]} # constrain type -> sens_attr_val -> total number
+            s_val_to_avg = {ct:{} for ct in [0,1,2]}
+            cons_sum_dict = {ct:{} for ct in [0,1,2]} # sum of entities (females and males) in constraints are stored here
 
             for v in set(attr_arr):
-                s_val_to_total[v] = sum(x_control_train[attr] == v)
+                s_val_to_total[0][v] = sum(x_control_train[attr] == v)
+                s_val_to_total[1][v] = sum(np.logical_and(x_control_train[attr] == v, y_train == -1)) # FPR constraint so we only consider the ground truth negative dataset for computing the covariance
+                s_val_to_total[2][v] = sum(np.logical_and(x_control_train[attr] == v, y_train == +1))
 
-            
-            s_val_to_avg[0] = s_val_to_total[1] / float(s_val_to_total[0] + s_val_to_total[1]) # A_0 in our formulation
-            s_val_to_avg[1] = 1.0 - (s_val_to_total[1] / float(s_val_to_total[0] + s_val_to_total[1])) # A_1 in our formulation
+
+            for ct in [0,1,2]:
+                s_val_to_avg[ct][0] = s_val_to_total[ct][1] / float(s_val_to_total[ct][0] + s_val_to_total[ct][1]) # N1/N in our formulation, differs from one constraint type to another
+                s_val_to_avg[ct][1] = 1.0 - s_val_to_avg[ct][0] # N0/N
 
             
             for v in set(attr_arr):
@@ -236,9 +239,9 @@ def get_constraint_list_cov(x_train, y_train, x_control_train, sensitive_attrs_t
                 # #DCCP constraints
                 dist_bound_prod = mul_elemwise(y_train[idx], x_train[idx] * w) # y.f(x)
                 
-                cons_sum_dict[0][v] = sum_entries( min_elemwise(0, dist_bound_prod) ) * (s_val_to_avg[v] / len(x_train))
-                cons_sum_dict[1][v] = sum_entries( min_elemwise(0, mul_elemwise( (1 - y_train[idx])/2.0, dist_bound_prod) ) ) * (s_val_to_avg[v] / len(x_train))
-                cons_sum_dict[2][v] = sum_entries( min_elemwise(0, mul_elemwise( (1 + y_train[idx])/2.0, dist_bound_prod) ) ) * (s_val_to_avg[v] / len(x_train))
+                cons_sum_dict[0][v] = sum_entries( min_elemwise(0, dist_bound_prod) ) * (s_val_to_avg[0][v] / len(x_train)) # avg misclassification distance from boundary
+                cons_sum_dict[1][v] = sum_entries( min_elemwise(0, mul_elemwise( (1 - y_train[idx])/2.0, dist_bound_prod) ) ) * (s_val_to_avg[1][v] / sum(y_train == -1)) # avg false positive distance from boundary (only operates on the ground truth neg dataset)
+                cons_sum_dict[2][v] = sum_entries( min_elemwise(0, mul_elemwise( (1 + y_train[idx])/2.0, dist_bound_prod) ) ) * (s_val_to_avg[2][v] / sum(y_train == +1)) # avg false negative distance from boundary
                 #################################################################
 
                 
@@ -360,24 +363,28 @@ def get_sensitive_attr_constraint_fpr_fnr_cov(model, x_arr, y_arr_true, y_arr_di
         arr = np.dot(model, x_arr.T) * y_arr_true # the product with the weight vector -- the sign of this is the output label
     arr = np.array(arr)
 
-    s_val_to_total = {}
-    s_val_to_avg = {}
-    cons_sum_dict = {0:{}, 1:{}, 2:{}} # sum of entities (females and males) in constraints are stored here
+    s_val_to_total = {ct:{} for ct in [0,1,2]}
+    s_val_to_avg = {ct:{} for ct in [0,1,2]}
+    cons_sum_dict = {ct:{} for ct in [0,1,2]} # sum of entities (females and males) in constraints are stored here
 
     for v in set(x_control_arr):
-        s_val_to_total[v] = sum(x_control_arr == v)
+        s_val_to_total[0][v] = sum(x_control_arr == v)
+        s_val_to_total[1][v] = sum(np.logical_and(x_control_arr == v, y_arr_true == -1))
+        s_val_to_total[2][v] = sum(np.logical_and(x_control_arr == v, y_arr_true == +1))
 
-    s_val_to_avg[0] = s_val_to_total[1] / float(s_val_to_total[0] + s_val_to_total[1]) # A_0 in our formulation
-    s_val_to_avg[1] = 1.0 - ( s_val_to_total[1] / float(s_val_to_total[0] + s_val_to_total[1]) ) # A_1 in our formulation
+
+    for ct in [0,1,2]:
+        s_val_to_avg[ct][0] = s_val_to_total[ct][1] / float(s_val_to_total[ct][0] + s_val_to_total[ct][1]) # N1 / N
+        s_val_to_avg[ct][1] = 1.0 - s_val_to_avg[ct][0] # N0 / N
 
     
     for v in set(x_control_arr):
         idx = x_control_arr == v
         dist_bound_prod = arr[idx]
 
-        cons_sum_dict[0][v] = sum( np.minimum(0, dist_bound_prod) ) * (s_val_to_avg[v] / len(x_arr))
-        cons_sum_dict[1][v] = sum( np.minimum(0, ( (1 - y_arr_true[idx]) / 2 ) * dist_bound_prod) ) * (s_val_to_avg[v] / len(x_arr))
-        cons_sum_dict[2][v] = sum( np.minimum(0, ( (1 + y_arr_true[idx]) / 2 ) * dist_bound_prod) ) * (s_val_to_avg[v] / len(x_arr))
+        cons_sum_dict[0][v] = sum( np.minimum(0, dist_bound_prod) ) * (s_val_to_avg[0][v] / len(x_arr))
+        cons_sum_dict[1][v] = sum( np.minimum(0, ( (1 - y_arr_true[idx]) / 2 ) * dist_bound_prod) ) * (s_val_to_avg[1][v] / sum(y_arr_true == -1))
+        cons_sum_dict[2][v] = sum( np.minimum(0, ( (1 + y_arr_true[idx]) / 2 ) * dist_bound_prod) ) * (s_val_to_avg[2][v] / sum(y_arr_true == +1))
         
 
     cons_type_to_name = {0:"ALL", 1:"FPR", 2:"FNR"}

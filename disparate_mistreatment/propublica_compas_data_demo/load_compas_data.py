@@ -50,7 +50,7 @@ def load_compas_data():
 
 	# load the data and get some stats
 	df = pd.read_csv(COMPAS_INPUT_FILE)
-	
+	df = df.dropna(subset=["days_b_screening_arrest"]) # dropping missing vals
 	
 	# convert to np array
 	data = df.to_dict('list')

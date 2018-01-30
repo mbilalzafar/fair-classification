@@ -12,7 +12,7 @@
   * [2. Using the code](#2-using-the-code)
      * [2.1. Training a(n) (un)fair classifier](#21-training-an-unfair-classifier)
      * [2.2. Making predictions](#22-making-predictions)
-
+  * [3. Code update](#3-code-update)
 
 ## 1. Fair classification demo
 
@@ -86,10 +86,10 @@ The results for the fair classifier look like this:
 ```
 === Constraints on FPR ===
 
-Accuracy: 0.778
+Accuracy: 0.774
 ||  s  || FPR. || FNR. ||
-||  0  || 0.18 || 0.33 ||
-||  1  || 0.19 || 0.19 ||
+||  0  || 0.16 || 0.37 ||
+||  1  || 0.16 || 0.21 ||
 ```
 
 So, the classifier sacrificed around 5% of (overall) accuracy to remove disparity in false positive rates for the two groups. Specifically, it decreased the FPR (as compared to the original classifier) for group-0 and increased the FPR for group-1. The code will also show how the classifier shifts its boundary to achieve fairness, while making sure that a minimal loss in overall accuracy is incurred.
@@ -114,10 +114,10 @@ The results and the decision boundary for this experiment are:
 ```
 === Constraints on FNR ===
 
-Accuracy: 0.767
+Accuracy: 0.768
 ||  s  || FPR. || FNR. ||
-||  0  || 0.57 || 0.17 ||
-||  1  || 0.04 || 0.15 ||
+||  0  || 0.58 || 0.16 ||
+||  1  || 0.04 || 0.14 ||
 ```
 
 <img src="synthetic_data_demo/img/syn_cons_dtype_1_cons_type_2.png" width="500px" style="float: right;">
@@ -140,10 +140,10 @@ The output looks like:
 ```
 === Constraints on both FPR and FNR ===
 
-Accuracy: 0.606
+Accuracy: 0.637
 ||  s  || FPR. || FNR. ||
-||  0  || 0.75 || 0.02 ||
-||  1  || 0.82 || 0.00 ||
+||  0  || 0.68 || 0.02 ||
+||  1  || 0.76 || 0.00 ||
 ```
 
 <img src="synthetic_data_demo/img/syn_cons_dtype_1_cons_type_4.png" width="500px" style="float: right;">
@@ -191,10 +191,10 @@ Accuracy: 0.678
 -----------------------------------------------------------------------------------
 == Constraints on FPR ==
 
-Accuracy: 0.665
+Accuracy: 0.659
 ||  s  || FPR. || FNR. ||
-||  0  || 0.27 || 0.37 ||
-||  1  || 0.29 || 0.45 ||
+||  0  || 0.24 || 0.43 ||
+||  1  || 0.25 || 0.50 ||
 ```
 
 You will notice that in this dataset, controlling for unfairness w.r.t. false positive rates also helps control unfairness on false negative rates (rather than making it worse, or not affecting it at all). For more discussion, please see Section 5 of our <a href="http://arxiv.org/abs/1610.08452" target="_blank">paper</a>.
@@ -226,3 +226,8 @@ The function will return the weight vector learned by the classifier. Given an _
 distance_boundary = numpy.dot(w, X) # will give the distance from the decision boundary
 predicted_labels = np.sign(distance_boundary) # sign of the distance from boundary is the class label
 ```
+
+
+## 3. Code update
+
+We have made changes to constraints for false positive and false negative rates. In the <a href="http://arxiv.org/abs/1610.08452" target="_blank">paper</a>(in Section 4), we compute the misclassification covariance over the whole dataset for _all_ constraint types. However, if the base rates (fraction in positive class in the training dataset) are different for various groups, computing the covariance over the whole dataset could result in under- or over-estimating the false positive / negative rates (the constraints for overall misclassification rates do not get affected by different base rates). To overcome this issue, we have changed the constraints in the following way: for false positive rate constraints, the covariance is computed over the ground truth negative dataset, and for false negative rate constraints, the covariance is computed over the ground truth positive dataset. This way, the constraints do not under- or over-estimate FPR or FNR.
