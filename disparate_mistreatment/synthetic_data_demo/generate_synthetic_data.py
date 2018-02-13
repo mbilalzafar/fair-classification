@@ -9,7 +9,7 @@ from sklearn.linear_model import LogisticRegression
 SEED = 1122334455
 seed(SEED) # set the random seed so that the random permutations can be reproduced again
 np.random.seed(SEED)
-sys.path.insert(0, '../../fair_classification/') 
+sys.path.insert(0, '../../fair_classification/')
 import utils as ut
 
 
@@ -100,7 +100,7 @@ def generate_synthetic_data(data_type, plot_data=False):
     y = y[perm]
     x_control = x_control[perm]
 
-    
+
     """ Plot the data """
     if plot_data:
         plt.figure()
@@ -131,7 +131,7 @@ def generate_synthetic_data(data_type, plot_data=False):
 
     x_control = {"s1": x_control} # all the sensitive features are stored in a dictionary
     X = ut.add_intercept(X)
-    
+
 
     return X,y,x_control
 

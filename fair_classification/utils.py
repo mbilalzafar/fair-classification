@@ -57,7 +57,7 @@ def train_model(x, y, x_control, loss_function, apply_fairness_constraints, appl
     if apply_fairness_constraints == 0:
         constraints = []
     else:
-        constraints = get_constraint_list_cov(x, y, x_control, sensitive_attrs, sensitive_attrs_to_cov_thresh)      
+        constraints = get_constraint_list_cov(x, y, x_control, sensitive_attrs, sensitive_attrs_to_cov_thresh)
 
     if apply_accuracy_constraint == 0: #its not the reverse problem, just train w with cross cov constraints
 
@@ -82,10 +82,10 @@ def train_model(x, y, x_control, loss_function, apply_fairness_constraints, appl
             )
 
         old_w = deepcopy(w.x)
-        
+
 
         def constraint_gamma_all(w, x, y,  initial_loss_arr):
-            
+
             gamma_arr = np.ones_like(y) * gamma # set gamma for everyone
             new_loss = loss_function(w, x, y)
             old_loss = sum(initial_loss_arr)
@@ -94,7 +94,7 @@ def train_model(x, y, x_control, loss_function, apply_fairness_constraints, appl
         def constraint_protected_people(w,x,y): # dont confuse the protected here with the sensitive feature protected/non-protected values -- protected here means that these points should not be misclassified to negative class
             return np.dot(w, x.T) # if this is positive, the constraint is satisfied
         def constraint_unprotected_people(w,ind,old_loss,x,y):
-            
+
             new_loss = loss_function(w, np.array([x]), np.array(y))
             return ((1.0 + gamma) * old_loss) - new_loss
 
@@ -105,10 +105,10 @@ def train_model(x, y, x_control, loss_function, apply_fairness_constraints, appl
         if sep_constraint == True: # separate gemma for different people
             for i in range(0, len(predicted_labels)):
                 if predicted_labels[i] == 1.0 and x_control[sensitive_attrs[0]][i] == 1.0: # for now we are assuming just one sensitive attr for reverse constraint, later, extend the code to take into account multiple sensitive attrs
-                    c = ({'type': 'ineq', 'fun': constraint_protected_people, 'args':(x[i], y[i])}) # this constraint makes sure that these people stay in the positive class even in the modified classifier             
+                    c = ({'type': 'ineq', 'fun': constraint_protected_people, 'args':(x[i], y[i])}) # this constraint makes sure that these people stay in the positive class even in the modified classifier
                     constraints.append(c)
                 else:
-                    c = ({'type': 'ineq', 'fun': constraint_unprotected_people, 'args':(i, unconstrained_loss_arr[i], x[i], y[i])})                
+                    c = ({'type': 'ineq', 'fun': constraint_unprotected_people, 'args':(i, unconstrained_loss_arr[i], x[i], y[i])})
                     constraints.append(c)
         else: # same gamma for everyone
             c = ({'type': 'ineq', 'fun': constraint_gamma_all, 'args':(x,y,unconstrained_loss_arr)})
@@ -177,7 +177,7 @@ def compute_cross_validation_error(x_all, y_all, x_control_all, num_folds, loss_
 
         w = train_model(x_train, y_train, x_control_train, loss_function, apply_fairness_constraints, apply_accuracy_constraint, sep_constraint, sensitive_attrs, sensitive_attrs_to_cov_thresh, gamma)
         train_score, test_score, correct_answers_train, correct_answers_test = check_accuracy(w, x_train, y_train, x_test, y_test, None, None)
-        
+
         distances_boundary_test = (np.dot(x_test, w)).tolist()
         all_class_labels_assigned_test = np.sign(distances_boundary_test)
         correlation_dict_test = get_correlations(None, None, all_class_labels_assigned_test, x_control_test, sensitive_attrs)
@@ -206,8 +206,8 @@ def compute_cross_validation_error(x_all, y_all, x_control_all, num_folds, loss_
     results = [output_folds.get() for p in processes]
     for p in processes:
         p.join()
-    
-    
+
+
     test_acc_arr = []
     train_acc_arr = []
     correlation_dict_test_arr = []
@@ -226,18 +226,18 @@ def compute_cross_validation_error(x_all, y_all, x_control_all, num_folds, loss_
         cov_dict_test_arr.append(cov_dict_test)
         cov_dict_train_arr.append(cov_dict_train)
 
-    
+
     return test_acc_arr, train_acc_arr, correlation_dict_test_arr, correlation_dict_train_arr, cov_dict_test_arr, cov_dict_train_arr
 
 
 
 def print_classifier_fairness_stats(acc_arr, correlation_dict_arr, cov_dict_arr, s_attr_name):
-    
+
     correlation_dict = get_avg_correlation_dict(correlation_dict_arr)
     non_prot_pos = correlation_dict[s_attr_name][1][1]
     prot_pos = correlation_dict[s_attr_name][0][1]
     p_rule = (prot_pos / non_prot_pos) * 100.0
-    
+
     print "Accuracy: %0.2f" % (np.mean(acc_arr))
     print "Protected/non-protected in +ve class: %0.0f%% / %0.0f%%" % (prot_pos, non_prot_pos)
     print "P-rule achieved: %0.0f%%" % (p_rule)
@@ -295,7 +295,7 @@ def get_one_hot_encoding(in_arr):
             print str(type(k))
             print "************* ERROR: Input arr does not have integer types"
             return None
-        
+
     in_arr = np.array(in_arr, dtype=int)
     assert(len(in_arr.shape)==1) # no column, means it was a 1-D arr
     attr_vals_uniq_sorted = sorted(list(set(in_arr)))
@@ -303,13 +303,13 @@ def get_one_hot_encoding(in_arr):
     if (num_uniq_vals == 2) and (attr_vals_uniq_sorted[0] == 0 and attr_vals_uniq_sorted[1] == 1):
         return in_arr, None
 
-    
+
     index_dict = {} # value to the column number
     for i in range(0,len(attr_vals_uniq_sorted)):
         val = attr_vals_uniq_sorted[i]
         index_dict[val] = i
 
-    out_arr = []    
+    out_arr = []
     for i in range(0,len(in_arr)):
         tup = np.zeros(num_uniq_vals)
         val = in_arr[i]
@@ -347,7 +347,7 @@ def check_accuracy(model, x_train, y_train, x_test, y_test, y_train_predicted, y
 
 def test_sensitive_attr_constraint_cov(model, x_arr, y_arr_dist_boundary, x_control, thresh, verbose):
 
-    
+
     """
     The covariance is computed b/w the sensitive attr val and the distance from the boundary
     If the model is None, we assume that the y_arr_dist_boundary contains the distace from the decision boundary
@@ -360,25 +360,25 @@ def test_sensitive_attr_constraint_cov(model, x_arr, y_arr_dist_boundary, x_cont
     if the return value is >=0, then the constraint is satisfied
     """
 
-    
+
 
 
     assert(x_arr.shape[0] == x_control.shape[0])
     if len(x_control.shape) > 1: # make sure we just have one column in the array
         assert(x_control.shape[1] == 1)
-    
+
     arr = []
     if model is None:
         arr = y_arr_dist_boundary # simply the output labels
     else:
         arr = np.dot(model, x_arr.T) # the product with the weight vector -- the sign of this is the output label
-    
+
     arr = np.array(arr, dtype=np.float64)
 
 
     cov = np.dot(x_control - np.mean(x_control), arr ) / float(len(x_control))
 
-        
+
     ans = thresh - abs(cov) # will be <0 if the covariance is greater than thresh -- that is, the condition is not satisfied
     # ans = thresh - cov # will be <0 if the covariance is greater than thresh -- that is, the condition is not satisfied
     if verbose is True:
@@ -399,7 +399,7 @@ def print_covariance_sensitive_attrs(model, x_arr, y_arr_dist_boundary, x_contro
         arr = y_arr_dist_boundary # simplt the output labels
     else:
         arr = np.dot(model, x_arr.T) # the product with the weight vector -- the sign of this is the output label
-    
+
 
     sensitive_attrs_to_cov_original = {}
     for attr in sensitive_attrs:
@@ -416,8 +416,8 @@ def print_covariance_sensitive_attrs(model, x_arr, y_arr_dist_boundary, x_contro
         if bin_attr:
             cov = thresh - test_sensitive_attr_constraint_cov(None, x_arr, arr, np.array(attr_arr), thresh, False)
             sensitive_attrs_to_cov_original[attr] = cov
-        else: # sensitive feature has more than 2 categorical values            
-            
+        else: # sensitive feature has more than 2 categorical values
+
             cov_arr = []
             sensitive_attrs_to_cov_original[attr] = {}
             for attr_val, ind in index_dict.items():
@@ -427,12 +427,12 @@ def print_covariance_sensitive_attrs(model, x_arr, y_arr_dist_boundary, x_contro
                 cov_arr.append(abs(cov))
 
             cov = max(cov_arr)
-            
+
     return sensitive_attrs_to_cov_original
 
 
 def get_correlations(model, x_test, y_predicted, x_control_test, sensitive_attrs):
-    
+
 
     """
     returns the fraction in positive class for sensitive feature values
@@ -440,9 +440,9 @@ def get_correlations(model, x_test, y_predicted, x_control_test, sensitive_attrs
 
     if model is not None:
         y_predicted = np.sign(np.dot(x_test, model))
-        
+
     y_predicted = np.array(y_predicted)
-    
+
     out_dict = {}
     for attr in sensitive_attrs:
 
@@ -497,7 +497,7 @@ def get_constraint_list_cov(x_train, y_train, x_control_train, sensitive_attrs, 
 
         attr_arr = x_control_train[attr]
         attr_arr_transformed, index_dict = get_one_hot_encoding(attr_arr)
-                
+
         if index_dict is None: # binary attribute
             thresh = sensitive_attrs_to_cov_thresh[attr]
             c = ({'type': 'ineq', 'fun': test_sensitive_attr_constraint_cov, 'args':(x_train, y_train, attr_arr_transformed,thresh, False)})
@@ -506,9 +506,9 @@ def get_constraint_list_cov(x_train, y_train, x_control_train, sensitive_attrs, 
 
 
             for attr_val, ind in index_dict.items():
-                attr_name = attr_val                
+                attr_name = attr_val
                 thresh = sensitive_attrs_to_cov_thresh[attr][attr_name]
-                
+
                 t = attr_arr_transformed[:,ind]
                 c = ({'type': 'ineq', 'fun': test_sensitive_attr_constraint_cov, 'args':(x_train, y_train, t ,thresh, False)})
                 constraints.append(c)
@@ -575,13 +575,13 @@ def plot_cov_thresh_vs_acc_pos_ratio(x_all, y_all, x_control_all, num_folds, los
         if sep_constraint == True:
             cov_range =  [0,1,5,10,20,50,100,500,1000]
 
-    
+
     positive_class_label = 1 # positive class is +1
     train_acc = []
     test_acc = []
     positive_per_category = defaultdict(list) # for each category (male / female), the frac of positive
 
-    # first get the original values of covariance in the unconstrained classifier -- these original values are not needed for reverse constraint    
+    # first get the original values of covariance in the unconstrained classifier -- these original values are not needed for reverse constraint
     test_acc_arr, train_acc_arr, correlation_dict_test_arr, correlation_dict_train_arr, cov_dict_test_arr, cov_dict_train_arr = compute_cross_validation_error(x_all, y_all, x_control_all, num_folds, loss_function, 0, apply_accuracy_constraint, sep_constraint, sensitive_attrs, [{} for i in range(0,num_folds)], 0)
 
     for c in cov_range:
@@ -605,20 +605,20 @@ def plot_cov_thresh_vs_acc_pos_ratio(x_all, y_all, x_control_all, num_folds, los
 
         correlation_dict_train = get_avg_correlation_dict(correlation_dict_train_arr)
         correlation_dict_test = get_avg_correlation_dict(correlation_dict_test_arr)
-        
+
         # just plot the correlations for the first sensitive attr, the plotting can be extended for the other values, but as a proof of concept, we will jsut show for one
-        s = sensitive_attrs[0]    
-        
+        s = sensitive_attrs[0]
+
         for k,v in correlation_dict_test[s].items():
             if v.get(positive_class_label) is None:
                 positive_per_category[k].append(0.0)
             else:
                 positive_per_category[k].append(v[positive_class_label])
-    
+
     positive_per_category = dict(positive_per_category)
-    
+
     p_rule_arr = (np.array(positive_per_category[0]) / np.array(positive_per_category[1])) * 100.0
-    
+
 
     ax = plt.subplot(2,1,1)
     plt.plot(cov_range, positive_per_category[0], "-o" , color="green", label = "Protected")
@@ -638,10 +638,11 @@ def plot_cov_thresh_vs_acc_pos_ratio(x_all, y_all, x_control_all, num_folds, los
     plt.ylabel('Accuracy')
 
     plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=0.5)
+    plt.savefig("img/tradeoff.png", transparent=True, dpi=600)
     plt.show()
 
 
 def get_line_coordinates(w, x1, x2):
     y1 = (-w[0] - (w[1] * x1)) / w[2]
-    y2 = (-w[0] - (w[1] * x2)) / w[2]    
+    y2 = (-w[0] - (w[1] * x2)) / w[2]
     return y1,y2
