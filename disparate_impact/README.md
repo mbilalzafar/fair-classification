@@ -90,7 +90,7 @@ We can see that the classifier sacrificed some accuracy to achieve similar fract
 The figure shows the original decision boundary (without any constraints) and the shifted decision boundary that was learnt by the fair classifier. Notice how the boundary shifts to push more non-protected points to the negative class (and vice-versa).
 
 
-###1.4. Optimizing fairness subject to accuracy constraints
+### 1.4. Optimizing fairness subject to accuracy constraints
 
 Now lets try to **optimize fairness** (that does not necessarily correspond to a 100% p-rule) **subject to a deterministic loss in accuracy**. The details can be found in Section 3.3 of our [paper](http://arxiv.org/pdf/1507.05259.pdf).
 
@@ -99,7 +99,7 @@ apply_fairness_constraints = 0 # flag for fairness constraint is set back to0 si
 apply_accuracy_constraint = 1 # now, we want to optimize fairness subject to accuracy constraints
 sep_constraint = 0
 gamma = 0.5
-w_a_cons, p_a_cons, acc_a_cons = train_test_classifier()    
+w_a_cons, p_a_cons, acc_a_cons = train_test_classifier()
 ```
 
 The "gamma" variable controls how much loss in accuracy we are willing to take while optimizing for fairness. A larger value of gamma will result in more fair system, but we will be getting a more loss in accuracy.
@@ -166,7 +166,7 @@ The following output is generated:
 
 We can see that decreasing the covariance threshold value gives a continuous trade-off between fairness and accuracy. Specifically, we see that the fractions of protected and non-protected examples in positive class starts to converge (resulting in a greater p-rule), however, we get an increasing drop in accuracy.
 
-###1.7. Adult data
+### 1.7. Adult data
 
 We also provide a demo of our code on [Adult dataset](http://archive.ics.uci.edu/ml/datasets/Adult). For applying the fairness constraints on the adult dataset, execute the following commands:
 

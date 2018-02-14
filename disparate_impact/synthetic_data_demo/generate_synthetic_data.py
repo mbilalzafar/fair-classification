@@ -40,7 +40,7 @@ def generate_synthetic_data(plot_data=False):
     shuffle(perm)
     X = X[perm]
     y = y[perm]
-    
+
     rotation_mult = np.array([[math.cos(disc_factor), -math.sin(disc_factor)], [math.sin(disc_factor), math.cos(disc_factor)]])
     X_aux = np.dot(X, rotation_mult)
 
@@ -53,12 +53,12 @@ def generate_synthetic_data(plot_data=False):
         # probability for each cluster that the point belongs to it
         p1 = nv1.pdf(x)
         p2 = nv2.pdf(x)
-        
+
         # normalize the probabilities from 0 to 1
         s = p1+p2
         p1 = p1/s
         p2 = p2/s
-        
+
         r = np.random.uniform() # generate a random number from 0 to 1
 
         if r < p1: # the first cluster is the positive class

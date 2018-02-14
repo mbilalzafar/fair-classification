@@ -8,7 +8,7 @@ import loss_funcs as lf # loss funcs that can be optimized subject to various co
 
 
 def test_synthetic_data():
-	
+
 	""" Generate the synthetic data """
 	X, y, x_control = generate_synthetic_data(plot_data=True) # set plot_data to False to skip the data plot
 	ut.compute_p_rule(x_control["s1"], y) # compute the p-rule in the original data
@@ -37,7 +37,7 @@ def test_synthetic_data():
 		all_class_labels_assigned_test = np.sign(distances_boundary_test)
 		correlation_dict_test = ut.get_correlations(None, None, all_class_labels_assigned_test, x_control_test, sensitive_attrs)
 		cov_dict_test = ut.print_covariance_sensitive_attrs(None, x_test, distances_boundary_test, x_control_test, sensitive_attrs)
-		p_rule = ut.print_classifier_fairness_stats([test_score], [correlation_dict_test], [cov_dict_test], sensitive_attrs[0])	
+		p_rule = ut.print_classifier_fairness_stats([test_score], [correlation_dict_test], [cov_dict_test], sensitive_attrs[0])
 		return w, p_rule, test_score
 
 
@@ -83,7 +83,7 @@ def test_synthetic_data():
 	apply_accuracy_constraint = 0
 	sep_constraint = 0
 	w_uncons, p_uncons, acc_uncons = train_test_classifier()
-	
+
 	""" Now classify such that we optimize for accuracy while achieving perfect fairness """
 	apply_fairness_constraints = 1 # set this flag to one since we want to optimize accuracy subject to fairness constraints
 	apply_accuracy_constraint = 0
@@ -101,11 +101,11 @@ def test_synthetic_data():
 	sep_constraint = 0
 	gamma = 0.5 # gamma controls how much loss in accuracy we are willing to incur to achieve fairness -- increase gamme to allow more loss in accuracy
 	print "== Classifier with accuracy constraint =="
-	w_a_cons, p_a_cons, acc_a_cons = train_test_classifier()	
-	plot_boundaries(w_uncons, w_a_cons, p_uncons, p_a_cons, acc_uncons, acc_a_cons, "img/a_cons.png")
+	w_a_cons, p_a_cons, acc_a_cons = train_test_classifier()
+	plot_boundaries(w_uncons, w_a_cons, p_uncons, p_a_cons, acc_uncons, acc_a_cons, "img/a_cons")
 
-	""" 
-	Classify such that we optimize for fairness subject to a certain loss in accuracy 
+	"""
+	Classify such that we optimize for fairness subject to a certain loss in accuracy
 	In addition, make sure that no points classified as positive by the unconstrained (original) classifier are misclassified.
 
 	"""

@@ -7,7 +7,7 @@ matplotlib.rcParams.update({'figure.autolayout': True})
 
 def get_line_coordinates(w, x1, x2):
     y1 = (-w[0] - (w[1] * x1)) / w[2]
-    y2 = (-w[0] - (w[1] * x2)) / w[2]    
+    y2 = (-w[0] - (w[1] * x2)) / w[2]
     return y1,y2
 def plot_boundaries(X, y, x_control, w_arr, acc_arr, fp_fn_arr, fname):
 
@@ -42,7 +42,7 @@ def plot_boundaries(X, y, x_control, w_arr, acc_arr, fp_fn_arr, fname):
 		x1,x2 = max(x_draw[:,1])-2, min(x_draw[:,1])
 		y1,y2 = get_line_coordinates(w_arr[i], x1, x2)
 
-		
+
 
 		l = "Acc=%0.2f; FPR=%0.2f:%0.2f; FNR=%0.2f:%0.2f"%(acc_arr[i], fp_fn_arr[i][0.0]["fpr"], fp_fn_arr[i][1.0]["fpr"], fp_fn_arr[i][0.0]["fnr"], fp_fn_arr[i][1.0]["fnr"])
 		plt.plot([x1,x2], [y1,y2], line_styles[i], linewidth=5, label = l)
@@ -53,7 +53,7 @@ def plot_boundaries(X, y, x_control, w_arr, acc_arr, fp_fn_arr, fname):
 	plt.tick_params(axis='x', which='both', bottom='off', top='off', labelbottom='off') # dont need the ticks to see the data distribution
 	plt.tick_params(axis='y', which='both', left='off', right='off', labelleft='off')
 	plt.legend(loc=2, fontsize=21)
-	
+
 	plt.ylim((-8,12))
 	
 	plt.savefig(fname)
