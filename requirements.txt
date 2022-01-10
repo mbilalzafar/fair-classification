@@ -1,0 +1,10 @@
+numpy==1.16.6
+scipy==1.2.3
+matplotlib==2.0.2
+cvxcanon==0.1.1
+ecos==2.0.4
+scs==1.2.6
+cvxpy==0.4.9
+dccp==0.1.6
+sklearn
+pandas
